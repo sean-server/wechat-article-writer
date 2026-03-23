@@ -1,0 +1,7 @@
+initialized_at: 2026-03-23
+version: 4.4
+initialized_by: init-check.sh
+
+# 初始化状态记录
+# 此文件存在表示 skill 已完成初始化检查
+# 删除此文件可强制重新运行初始化检查
