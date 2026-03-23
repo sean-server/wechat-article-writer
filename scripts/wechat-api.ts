@@ -322,20 +322,26 @@ function renderMarkdownWithPlaceholders(
   const mdToWechatScript = path.join(__dirname, "md-to-wechat.ts");
   const baseDir = path.dirname(markdownPath);
 
-  const args = ["-y", "bun", mdToWechatScript, markdownPath];
+  const args = [mdToWechatScript, markdownPath];
   if (title) args.push("--title", title);
   if (theme) args.push("--theme", theme);
   if (color) args.push("--color", color);
   if (!citeStatus) args.push("--no-cite");
 
   console.error(`[wechat-api] Rendering markdown with placeholders via md-to-wechat: ${theme}${color ? `, color: ${color}` : ""}, citeStatus: ${citeStatus}`);
-  const result = spawnSync("npx", args, {
-    stdio: ["inherit", "pipe", "pipe"],
-    cwd: baseDir,
+  const bunPath = process.env.BUN_INSTALL ? `${process.env.BUN_INSTALL}/bin/bun` : "bun";
+  const result = spawnSync(bunPath, args, {
+    stdio: ["pipe", "pipe", "pipe"],
+    cwd: process.cwd(),
+    env: { ...process.env, PATH: "/Users/xiaoan/.bun/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin" },
   });
 
   if (result.status !== 0) {
     const stderr = result.stderr?.toString() || "";
+    const stdout = result.stdout?.toString() || "";
+    console.error(`[wechat-api] spawn failed with status: ${result.status}`);
+    console.error(`[wechat-api] stderr: ${stderr}`);
+    console.error(`[wechat-api] stdout: ${stdout}`);
     throw new Error(`Markdown placeholder render failed: ${stderr}`);
   }
 
