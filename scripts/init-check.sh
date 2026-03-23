@@ -251,6 +251,53 @@ check_network() {
     fi
 }
 
+# ==================== 检查7: 微信公众号API连通性 ====================
+check_wechat_api() {
+    print_section "7. 微信公众号 API 连通性检查"
+    
+    local config_file="$SKILL_DIR/config/.env"
+    local wechat_app_id=$(grep "^WECHAT_APP_ID=" "$config_file" 2>/dev/null | cut -d'=' -f2 | tr -d '"' | tr -d "'")
+    local wechat_secret=$(grep "^WECHAT_APP_SECRET=" "$config_file" 2>/dev/null | cut -d'=' -f2 | tr -d '"' | tr -d "'")
+    
+    # 如果凭证未配置，跳过此检查
+    if [[ -z "$wechat_app_id" || -z "$wechat_secret" || "$wechat_app_id" == "your_app_id" ]]; then
+        print_warn "微信公众号凭证未配置，跳过 API 连通性检查"
+        print_info "请先在 config/.env 中配置 WECHAT_APP_ID 和 WECHAT_APP_SECRET"
+        return
+    fi
+    
+    # 尝试获取 access_token
+    local api_url="https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=$wechat_app_id&secret=$wechat_secret"
+    local response=$(curl -s --max-time 10 "$api_url" 2>/dev/null)
+    
+    # 检查响应
+    if echo "$response" | grep -q '"access_token"'; then
+        print_ok "微信公众号 API 连接成功（access_token 获取正常）"
+        print_ok "IP 白名单配置正确"
+    elif echo "$response" | grep -q 'invalid ip.*not in whitelist'; then
+        # 提取报错的 IP 地址
+        local blocked_ip=$(echo "$response" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+        print_error "微信公众号 IP 白名单未配置"
+        print_info "当前公网 IP: $blocked_ip"
+        print_info ""
+        print_info "请按以下步骤添加 IP 白名单："
+        print_info "1. 登录微信公众平台: https://mp.weixin.qq.com"
+        print_info "2. 左侧菜单 → 设置与开发 → 基本配置"
+        print_info "3. 找到「IP白名单」，点击修改"
+        print_info "4. 添加以下 IP: $blocked_ip"
+        print_info "5. 保存后重新运行此检查"
+    elif echo "$response" | grep -q 'invalid appid'; then
+        print_error "微信公众号 AppID 无效"
+        print_info "请检查 config/.env 中的 WECHAT_APP_ID 是否正确"
+    elif echo "$response" | grep -q 'invalid appsecret\|invalid secret'; then
+        print_error "微信公众号 AppSecret 无效"
+        print_info "请检查 config/.env 中的 WECHAT_APP_SECRET 是否正确"
+    else
+        print_warn "微信公众号 API 响应异常"
+        print_info "响应内容: $response"
+    fi
+}
+
 # ==================== 生成报告 ====================
 print_summary() {
     echo ""
@@ -361,6 +408,7 @@ main() {
     check_knowledge_base
     check_scripts
     check_network
+    check_wechat_api
     
     local result
     print_summary
