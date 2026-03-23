@@ -33,6 +33,8 @@ cd ~/.workbuddy/skills/wechat-article-writer
 ./scripts/init-check.sh
 ```
 
+> **注意**：skill 使用相对路径，可以放在任意目录。初始化检查会自动检测当前位置。
+
 脚本会自动检测环境并引导配置：
 - ✅ 运行环境（Bun、Python3）
 - ✅ 配置文件（微信公众号凭证）

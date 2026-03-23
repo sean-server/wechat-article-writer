@@ -1,0 +1,42 @@
+# ============================================================
+# wechat-article-writer Git Ignore
+# ============================================================
+
+# 敏感配置文件（永远不要上传）
+config/.env
+.env
+
+# 初始化标记文件（用户本地生成，位于 skill 根目录）
+/.initialized
+
+# 输出目录（用户生成的文章）
+outputs/
+
+# Node.js 依赖（用户自行安装）
+node_modules/
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# 日志文件
+*.log
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE 配置
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 临时文件
+tmp/
+temp/
+*.tmp

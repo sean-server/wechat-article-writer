@@ -20,8 +20,8 @@ CHECK_PASSED=0
 CHECK_FAILED=0
 CHECK_WARN=0
 
-# 记忆文件路径
-MEMORY_FILE="$HOME/.workbuddy/skills/wechat-article-writer/.initialized"
+# 记忆文件路径（相对于 skill 根目录）
+MEMORY_FILE="$SKILL_DIR/.initialized"
 
 print_header() {
     echo ""
