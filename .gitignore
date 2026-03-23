@@ -12,9 +12,6 @@ config/.env
 # 输出目录（用户生成的文章）
 outputs/
 
-# Node.js 依赖（用户自行安装）
-node_modules/
-
 # Python 缓存
 __pycache__/
 *.pyc
